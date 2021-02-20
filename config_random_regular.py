@@ -21,8 +21,8 @@ path_trials = 20
 ds = [4]
 
 # ----- Fraction of spies ----#
-# ps = [0.02, 0.04, 0.08,  0.1, 0.15, 0.2, 0.25, 0.3, 0.4, 0.45, 0.5]
-ps = [ 0.25, 0.3, 0.4, 0.45, 0.5]
+ps = [0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5]
+#ps = [ 0.25, 0.3, 0.4, 0.45, 0.5]
 
 
 
@@ -85,10 +85,11 @@ sim_settings['first_spy_dand_q_1_000_spies_misbehave'] = \
 		(sim_lib.FirstSpyLineSimulator, {'p_and_r':True, 'q':1.0})
 sim_settings['first_spy_dand_q_0_25_spies_misbehave'] = \
 		(sim_lib.FirstSpyLineSimulator, {'p_and_r':True, 'q':0.25})
+sim_settings['first_spy_dand_q_0_10_spies_misbehave'] = \
+		(sim_lib.FirstSpyLineSimulator, {'p_and_r':True, 'q':0.10})
 sim_settings['first_spy_dand_q_0_00_spies_misbehave'] = \
 		(sim_lib.FirstSpyLineSimulator, {'p_and_r':True, 'q':0.0})
 sim_settings['dandelion_lite'] = (sim_lib.DandelionLiteSimulator, {'p_and_r':True})
 
 # sim_settings['max_weight_dand'] = (sim_lib.MaxWeightLineSimulator, {'p_and_r':True})
-
 
