@@ -145,7 +145,7 @@ class LineSimulator(Simulator):
 				if spies[tail]:
 					spy_mapping[tail].append(SpyInfo(tail, pre_tail, node))
 					break
-				if np.random.binomial(1, self.q):
+				if path_length > 1 and np.random.binomial(1, self.q):
 					# end the stem
 					if tail in spy_mapping:
 						spy_mapping[tail].append(SpyInfo(tail, pre_tail, node))
