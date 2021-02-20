@@ -17,7 +17,7 @@ class GraphGen(object):
 			p -- proportion of spies
 		'''
 
-		self.n = n
+		self.n = max(n, int(n/(1.0-p)))  # keep number of honest nodes at n
 		self.p = p
 		self.verbose = verbose
 

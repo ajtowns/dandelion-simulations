@@ -156,7 +156,7 @@ class LineSimulator(Simulator):
 				# if tail in
 					# there are no spies on this path, so we'll just assign the
 					#   last node to see the message to a spy
-					spy = random.choice(spy_mapping.keys())
+					spy = random.choice(list(spy_mapping.keys()))
 					spy_mapping[spy].append(SpyInfo(spy, tail, node))
 					break
 			if self.verbose:
