@@ -153,14 +153,7 @@ if __name__=='__main__':
 				# print 'G loaded', nx.number_of_nodes(G), ' nodes'
 
 				num_honest_nodes = get_num_honest_nodes(G)
-
-				# Corner cases
-				if (num_honest_nodes == n) or (num_honest_nodes == 0):
-					if (num_honest_nodes == n) or (num_honest_nodes == 0):
-						graph_precision += 0.0
-						graph_recall += 0.0
-					continue
-				# print G.edges()
+				print(f"Honest {num_honest_nodes} {p}")
 
 				for j in range(path_trials):
 					# run the simulations
