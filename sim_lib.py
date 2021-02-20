@@ -148,8 +148,8 @@ class LineSimulator(Simulator):
 					if self.verbose:
 						print("Reached a spy!")
 					break
-				if np.random.binomial(1, self.q):
-					# end the stem. We conservatively assume the adversary gets to see the tail node exactly. 
+				if path_length > 1 and np.random.binomial(1, self.q):
+					# end the stem. We conservatively assume the adversary gets to see the tail node exactly.
 					# Since the tail is not a spy, we have the adversary guess one of the
 					# tail node's predecessors uniformly at random
 					guess = random.choice(list(self.A.predecessors(tail)))
