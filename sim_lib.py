@@ -36,9 +36,13 @@ class Simulator(object):
 
 
 class LineSimulator(Simulator):
-	def __init__(self, A, verbose = False, q = 0.0):
+	def __init__(self, A, verbose = False, q = 0.0, always_stem_once = False):
 		super(LineSimulator, self).__init__(A, verbose = verbose)
 		self.q = q
+		if always_stem_once:
+			self.min_path = 1
+		else:
+			self.min_path = 0
 
 	def run_simulation(self, graph = MAIN_GRAPH):
 		''' Simulates dandelion spreading over a graph.
@@ -148,7 +152,7 @@ class LineSimulator(Simulator):
 					if self.verbose:
 						print("Reached a spy!")
 					break
-				if path_length > 1 and np.random.binomial(1, self.q):
+				if path_length > self.min_path and np.random.binomial(1, self.q):
 					# end the stem. We conservatively assume the adversary gets to see the tail node exactly.
 					# Since the tail is not a spy, we have the adversary guess one of the
 					# tail node's predecessors uniformly at random
@@ -173,8 +177,8 @@ class LineSimulator(Simulator):
 		return spy_mapping, hops
 
 class FirstSpyLineSimulator(LineSimulator):
-	def __init__(self, A, num_honest_nodes, verbose = False, p_and_r = False, edgebased=0, q=0.0):
-		super(FirstSpyLineSimulator, self).__init__(A, verbose, q)
+	def __init__(self, A, num_honest_nodes, verbose = False, p_and_r = False, edgebased=0, q=0.0, always_stem_once=False):
+		super(FirstSpyLineSimulator, self).__init__(A, verbose, q, always_stem_once)
 		self.p_and_r = p_and_r
 		self.num_honest_nodes = num_honest_nodes
 		global incedge
