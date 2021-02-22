@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 import collections
 import math
 
-incedge = False
 MAIN_GRAPH = 0
 ANON_GRAPH = 1
 
@@ -60,48 +59,6 @@ class LineSimulator(Simulator):
 			# if node is a spy, add it to the dictionary
 			if spies[node]:
 				spy_mapping[node] = []
-			elif incedge==2: # all-to-one
-				succs = self.A.successors(node)
-				pred_succ_mapping[node] = random.choice(succs)
-			elif incedge==1: # per-incoming-edge
-				pred_succ_mapping[node] = {}		#dict to hold mapping for this node
-				preds = self.A.predecessors(node)
-				succs = self.A.successors(node)
-				for pred in preds:					#for each pred, we randomly allocate a succ
-					pred_succ_mapping[node][pred] = random.choice(succs)
-				if len(pred_succ_mapping[node].values())>1:
-					if (pred_succ_mapping[node].values())[0]==(pred_succ_mapping[node].values())[1]:
-						pred_succ_mapping[node][node] = (pred_succ_mapping[node].values())[0]
-					else:
-						pred_succ_mapping[node][node] = random.choice(succs)
-				else:
-					pred_succ_mapping[node][node] = pred_succ_mapping[node].values()[0]
-			elif incedge==3: # one-to-one
-				pred_succ_mapping[node] = {}		#dict to hold mapping for this node
-				preds = self.A.predecessors(node)
-				succs = self.A.successors(node)
-
-				if len(succs) > 0:
-					# map your own transaction randomly to the out-nodes
-					pred_succ_mapping[node][node] = random.choice(succs)
-
-				# compute the one-to-one mapping
-				if len(preds)>0 and len(succs)>0:
-					succ_list = [item for item in succs]
-					random.shuffle(succ_list)
-					for pred in preds:
-						succ = succ_list.pop()
-						pred_succ_mapping[node][pred] = succ
-						if not succ_list:
-							succ_list = [item for item in succs]
-							random.shuffle(succ_list)
-			elif incedge == 4:
-				pred_succ_mapping[node] = {}
-				preds = self.A.predecessors(node)
-				succs = self.A.successors(node)
-				for pred in preds:
-					pred_succ_mapping[node][pred] = random.choice(succs)
-				pred_succ_mapping[node][node] = random.choice(succs)
 
 		# find the nodes reporting to each spy
 		hops = np.zeros(2*len(self.A.nodes()))
@@ -117,28 +74,8 @@ class LineSimulator(Simulator):
 			path_list = []
 			# print("\n")
 			while True:
-				if tail in path_list and incedge!=0:
-					neighbors = np.array(self.A.successors(tail))
-					if (incedge==1 or incedge==3 or incedge==4):
-						if (len(neighbors)>1 and tail in pred_succ_mapping):
-							if pre_tail in pred_succ_mapping[tail]:
-								now = neighbors[np.where(neighbors!=pred_succ_mapping[tail][pre_tail])[0][0]]
-						else:
-							now = pred_succ_mapping[tail][pre_tail]
-					else :
-						if (len(neighbors)>1):
-							now = neighbors[np.where(neighbors!=pred_succ_mapping[tail])[0][0]]
-						else:
-							now = pred_succ_mapping[tail]
-				elif incedge==1 or incedge==3 or incedge==4:
-					if tail in pred_succ_mapping:
-						if pre_tail in pred_succ_mapping[tail]:
-							now = pred_succ_mapping[tail][pre_tail]
-				elif incedge==2:
-					now = pred_succ_mapping[tail]
-				elif incedge==0:
-					neighbors = list(self.A.successors(tail))
-					now = random.choice(neighbors)
+				neighbors = list(self.A.successors(tail))
+				now = random.choice(neighbors)
 				pre_tail = tail
 				path_list.append(tail)
 				tail = now
@@ -173,12 +110,10 @@ class LineSimulator(Simulator):
 		return spy_mapping, hops
 
 class FirstSpyLineSimulator(LineSimulator):
-	def __init__(self, A, num_honest_nodes, verbose = False, p_and_r = False, edgebased=0, q=0.0):
+	def __init__(self, A, num_honest_nodes, verbose = False, p_and_r = False, q=0.0):
 		super(FirstSpyLineSimulator, self).__init__(A, verbose, q)
 		self.p_and_r = p_and_r
 		self.num_honest_nodes = num_honest_nodes
-		global incedge
-		incedge=edgebased		#global variable holds the type for random forwarding or pseudorandom/random
 
 		spy_mapping, hops = super(FirstSpyLineSimulator, self).run_simulation()
 		self.hops = hops
