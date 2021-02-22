@@ -44,6 +44,7 @@ def plot_results(p_means, p_stds, r_means, r_stds, ps,
 				 n, settings_list):
 	''' Plot the output of our experiments '''
 	# Plot the precision results
+	plt.figure(figsize=(12,8), dpi=75)
 	for mean, std in zip(p_means, p_stds):
 		plt.errorbar(ps, mean, std)
 	plt.xlabel("Spy Fraction p")
@@ -53,7 +54,7 @@ def plot_results(p_means, p_stds, r_means, r_stds, ps,
 	plt.savefig("results/precision")
 
 	# Plot the recall results
-	plt.figure()
+	plt.figure(figsize=(12,8), dpi=75)
 	for mean, std in zip(r_means, r_stds):
 		plt.errorbar(ps, mean, std)
 	plt.xlabel("Spy Fraction p")
@@ -63,7 +64,7 @@ def plot_results(p_means, p_stds, r_means, r_stds, ps,
 	plt.savefig("results/recall")
 
 	# Plot precision vs. recall results
-	plt.figure()
+	plt.figure(figsize=(26,8), dpi=75)
 	for r_mean, p_mean in zip(r_means, p_means):
 		plt.plot(r_mean, p_mean, 'o-')
 	plt.xlabel("Recall")
