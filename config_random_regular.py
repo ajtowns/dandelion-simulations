@@ -10,10 +10,10 @@ n = 100	# number of nodes
 verbose = False	# debug?
 
 # Number of graphs used
-graph_trials = 20
+graph_trials = 30
 
 # Number of trials per graph
-path_trials = 20
+path_trials = 30
 # path_trials = 1
 
 # ----- Out-degree of random regular graph ----#
@@ -22,7 +22,7 @@ ds = [4]
 
 # ----- Fraction of spies ----#
 # ps = [0.02, 0.04, 0.08,  0.1, 0.15, 0.2, 0.25, 0.3, 0.4, 0.45, 0.5]
-ps = [ 0.25, 0.3, 0.4, 0.45, 0.5]
+ps = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
 
 
 
@@ -85,20 +85,25 @@ sim_graph_params = {}
  '''
 
 sim_settings = {}
-sim_settings['first_spy_diffusion'] = (sim_lib.FirstSpyDiffusionSimulator,
-										{'p_and_r':True})
-sim_settings['first_spy_dand_q_1_000_spies_misbehave'] = \
-		(sim_lib.FirstSpyLineSimulator, {'p_and_r':True, 'q':1.0})
-# sim_settings['first_spy_dand_q_0_25_spies_misbehave'] = \
-# 		(sim_lib.FirstSpyLineSimulator, {'p_and_r':True, 'q':0.25})
-sim_settings['first_spy_dand_q_0_00_spies_misbehave'] = \
-		(sim_lib.FirstSpyLineSimulator, {'p_and_r':True, 'q':0.0})
-# Dandelion Lite with stronger adversary (learns last stem node exactly)
-sim_settings['dandelion_lite_worst_case'] = (sim_lib.DandelionLiteSimulator, {'p_and_r':True, \
-																   'beyond_stem':False})
-# Dandelion Lite with weaker adversary (doesn't learn last stem node exactly)
-sim_settings['dandelion_lite'] = (sim_lib.DandelionLiteSimulator, {'p_and_r':True, \
-																   'beyond_stem':True})
+
+if False:
+    # spies find out by diffusion
+    sim_settings['first_spy_diffusion'] = (sim_lib.FirstSpyDiffusionSimulator, {'p_and_r':True})
+    sim_settings['dandelion_lite'] = (sim_lib.DandelionLiteSimulator, {'p_and_r':True, 'beyond_stem':True})
+    #sim_settings['first_spy_dand_q_1_000_spies_misbehave'] = (sim_lib.FirstSpyLineSimulator, {'p_and_r':True, 'q':1.0, 'beyond_stem': True})
+    sim_settings['first_spy_dand_q_0_33_spies_misbehave'] = (sim_lib.FirstSpyLineSimulator, {'p_and_r':True, 'q':0.33, 'beyond_stem': True})
+    sim_settings['first_spy_dand_q_0_25_spies_misbehave'] = (sim_lib.FirstSpyLineSimulator, {'p_and_r':True, 'q':0.25, 'beyond_stem': True})
+    sim_settings['first_spy_dand_q_0_10_spies_misbehave'] = (sim_lib.FirstSpyLineSimulator, {'p_and_r':True, 'q':0.10, 'beyond_stem': True})
+    sim_settings['first_spy_dand_q_0_00_spies_misbehave'] = (sim_lib.FirstSpyLineSimulator, {'p_and_r':True, 'q':0.0, 'beyond_stem': True})
+
+else:
+    # sepies find out by magic
+    sim_settings['dandelion_lite_worst'] = (sim_lib.DandelionLiteSimulator, {'p_and_r':True, 'beyond_stem':False})
+    #sim_settings['first_spy_dand_q_1_000_spies_misbehave_worst'] = (sim_lib.FirstSpyLineSimulator, {'p_and_r':True, 'q':1.0})
+    sim_settings['first_spy_dand_q_0_33_spies_misbehave_worst'] = (sim_lib.FirstSpyLineSimulator, {'p_and_r':True, 'q':0.33})
+    sim_settings['first_spy_dand_q_0_25_spies_misbehave_worst'] = (sim_lib.FirstSpyLineSimulator, {'p_and_r':True, 'q':0.25})
+    sim_settings['first_spy_dand_q_0_10_spies_misbehave_worst'] = (sim_lib.FirstSpyLineSimulator, {'p_and_r':True, 'q':0.10})
+    sim_settings['first_spy_dand_q_0_00_spies_misbehave_worst'] = (sim_lib.FirstSpyLineSimulator, {'p_and_r':True, 'q':0.0})
 
 # sim_settings['max_weight_dand'] = (sim_lib.MaxWeightLineSimulator, {'p_and_r':True})
 
