@@ -33,13 +33,22 @@ class Simulator(object):
 		self.num_honest_nodes = num_honest_nodes
 		self.verbose = verbose
 
+	def get_neighbor_set(self, candidates, infected):
+		''' Returns the set of susceptible edges from infected zone to uninfected '''
+		neighbors = []
+		for node in candidates:
+			for neighbor in nx.all_neighbors(self.A, node):
+				if (neighbor not in infected) and ([node, neighbor] not in neighbors):
+					neighbors += [[node, neighbor]]
+		return neighbors
+
 
 class LineSimulator(Simulator):
 	def __init__(self, A, verbose = False, q = 0.0):
 		super(LineSimulator, self).__init__(A, verbose = verbose)
 		self.q = q
 
-	def run_simulation(self, graph = MAIN_GRAPH):
+	def run_simulation(self, graph = MAIN_GRAPH, beyond_stem = False):
 		''' Simulates dandelion spreading over a graph.
 		Parameters:
 			graph 	Which graph to spread over.
@@ -86,15 +95,44 @@ class LineSimulator(Simulator):
 						print("Reached a spy!")
 					break
 				if np.random.binomial(1, self.q):
-					# end the stem. We conservatively assume the adversary gets to see the tail node exactly. 
-					# Since the tail is not a spy, we have the adversary guess one of the
-					# tail node's predecessors uniformly at random
-					guess = random.choice(list(self.A.predecessors(tail)))
-					spy_info = SpyInfoLite(tail, guess, node)
-					if tail in spy_mapping:
-						spy_mapping[tail].append(spy_info)
+					if not beyond_stem:
+						# end the stem. We conservatively assume the adversary gets to see the tail node exactly. 
+						# Since the tail is not a spy, we have the adversary guess one of the
+						# tail node's predecessors uniformly at random
+						guess = random.choice(list(self.A.predecessors(tail)))
+						spy_info = SpyInfoLite(tail, guess, node)
+						if tail in spy_mapping:
+							spy_mapping[tail].append(spy_info)
+						else:
+							spy_mapping[tail] = [spy_info]
 					else:
-						spy_mapping[tail] = [spy_info]
+						# now run diffusion
+						infected = [now] # act as if node was not yet infected
+						boundary_edges = self.get_neighbor_set(infected, infected)
+						while boundary_edges:
+							next = random.choice(boundary_edges)
+							source = next[0]
+							target = next[1]
+							path_length += 1
+							# print('node', node, 'neighbors', neighbors, 'tail', tail)
+							if spies[target]:
+								# The adversary knows that msg is relayed, so it will pick one of source's predecessors as their best guess for the source
+								guess = random.choice(list(self.A.predecessors(source)))
+								spy_mapping[target].append(SpyInfoLite(target, guess, node, stem=False))
+								# # Do not tell the adversary that the message was relayed
+								# spy_mapping[target].append(SpyInfoLite(target, source, node, stem=True))
+								break
+							if path_length >= nx.number_of_nodes(self.A):
+								# there are no spies on this path, so we'll just assign the
+								#   last node to see the message to a spy
+								spy = random.choice(list(spy_mapping.keys()))
+								guess = random.choice(self.A.nodes())
+								spy_mapping[spy].append(SpyInfoLite(spy, target, node, stem=False))
+								break
+							infected += [target]
+							boundary_edges.remove(next)
+							boundary_edges = [item for item in boundary_edges if item[1] != target]
+							boundary_edges += [[target, item] for item in nx.all_neighbors(self.A, target) if item not in infected]
 					break
 				if path_length > nx.number_of_nodes(self.A):
 				# if tail in
@@ -110,12 +148,12 @@ class LineSimulator(Simulator):
 		return spy_mapping, hops
 
 class FirstSpyLineSimulator(LineSimulator):
-	def __init__(self, A, num_honest_nodes, verbose = False, p_and_r = False, q=0.0):
+	def __init__(self, A, num_honest_nodes, verbose = False, p_and_r = False, q=0.0, beyond_stem=False):
 		super(FirstSpyLineSimulator, self).__init__(A, verbose, q)
 		self.p_and_r = p_and_r
 		self.num_honest_nodes = num_honest_nodes
 
-		spy_mapping, hops = super(FirstSpyLineSimulator, self).run_simulation()
+		spy_mapping, hops = super(FirstSpyLineSimulator, self).run_simulation(beyond_stem=beyond_stem)
 		self.hops = hops
 		est = FirstSpyEstimator(self.A, self.num_honest_nodes, self.verbose, p_and_r)
 		if p_and_r:
@@ -606,16 +644,6 @@ class DiffusionSimulator(Simulator):
 			hops[path_length] +=1
 
 		return spy_mapping, hops
-
-	def get_neighbor_set(self, candidates, infected):
-		''' Returns the set of susceptible edges from infected zone to uninfected '''
-		neighbors = []
-		for node in candidates:
-			for neighbor in nx.all_neighbors(self.A, node):
-				if (neighbor not in infected) and ([node, neighbor] not in neighbors):
-					neighbors += [[node, neighbor]]
-
-		return neighbors
 
 class DandelionLiteSimulator(DiffusionSimulator):
 	def __init__(self, A, num_honest_nodes, verbose = False, p_and_r = True, beyond_stem = True):
